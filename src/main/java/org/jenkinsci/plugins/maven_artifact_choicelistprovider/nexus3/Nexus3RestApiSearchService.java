@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -18,8 +19,6 @@ import org.jenkinsci.plugins.maven_artifact_choicelistprovider.ValidAndInvalidCl
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.sun.jersey.api.client.WebResource;
-
 
 public class Nexus3RestApiSearchService extends AbstractRESTfulVersionReader implements IVersionReader {
 
@@ -39,20 +38,15 @@ public class Nexus3RestApiSearchService extends AbstractRESTfulVersionReader imp
         Set<String> retVal = new TreeSet<>();
         String token = null;
 
-        final WebResource rs = getInstance();
         final ObjectMapper mapper = new ObjectMapper();
-       
+
         do {
             final MultivaluedMap<String, String> requestParams = new Nexus3RESTfulParameterBuilder().create(pRepositoryId, pGroupId, pArtifactId, pPackaging, pClassifier, token);
-            if (LOGGER.isLoggable(Level.INFO)) {
-                LOGGER.info("URI: " + rs.queryParams(requestParams).getURI());
-            }
-            
-            final String plainResult = rs.queryParams(requestParams).accept(MediaType.APPLICATION_JSON).get(String.class);
+            final String plainResult = getInstance(requestParams).request(MediaType.APPLICATION_JSON).get(String.class);
 
             try {
                 final Nexus3RestResponse parsedJsonResult = mapper.readValue(plainResult, Nexus3RestResponse.class);
-                
+
                 if (parsedJsonResult == null) {
                     LOGGER.info("response from Nexus3 is NULL.");
                 } else if (parsedJsonResult.getItems().length == 0) {
@@ -60,7 +54,7 @@ public class Nexus3RestApiSearchService extends AbstractRESTfulVersionReader imp
                 } else {
                     Set<String> currentResult = parseResponse(parsedJsonResult);
                     retVal.addAll(currentResult);
-                    
+
                     // control the loop and maybe query again
                     token = parsedJsonResult.getContinuationToken();
                 }

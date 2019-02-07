@@ -46,7 +46,7 @@ public class ArtifactorySearchService extends AbstractRESTfulVersionReader imple
 
         Set<String> retVal = new LinkedHashSet<String>();
         LOGGER.info("call artifactory service");
-        final String plainResult = getInstance().queryParams(requestParams).accept(MediaType.APPLICATION_JSON).get(String.class);
+        final String plainResult = getInstance(requestParams).request(MediaType.APPLICATION_JSON).get(String.class);
 
         if (plainResult == null) {
             LOGGER.info("response from Artifactory Service is NULL.");
