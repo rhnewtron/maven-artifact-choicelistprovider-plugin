@@ -79,6 +79,13 @@
 			<version>2.28</version>
 		</dependency>
 
+		<!-- JENKINS-56024: Include class com.sun.ws.rs.ext.RuntimeDelegateImpl -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-bundle-jaxrs</artifactId>
+			<version>2.7.18</version>
+		</dependency>
+
 
 		<!-- Necessary to parse the XML from Nexus Lucene Service -->
 		<dependency>
